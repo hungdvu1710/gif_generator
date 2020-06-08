@@ -6,6 +6,7 @@ async function getGifWithBtn(event,args){
   const {data} = await xhr.json().catch(console.log)
   event.sender.send('returnGifBtn',data)
 }
+
 async function getGifWithScroll(event,args){
   let xhr = await fetch(`http://api.giphy.com/v1/gifs/search?q=${args[0]}&api_key=jjkPZL63udWj11nnwd35vSYQk8YbV25g&limit=${args[1]}`).catch(console.log)
   const {data} = await xhr.json().catch(console.log)

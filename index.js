@@ -2,6 +2,7 @@ const ipcRenderer = require('electron').ipcRenderer
 const inputField = document.querySelector("#text-input")
 const searchBtn = document.querySelector('#searchBtn')
 let searchAmount = 8
+const resultGifs = document.querySelector(".resultGif")
 
 searchBtn.addEventListener('click', () => {
   searchAmount = 8
@@ -9,36 +10,29 @@ searchBtn.addEventListener('click', () => {
   ipcRenderer.send('getGifWithBtn',input)  
 });
 
-ipcRenderer.on('returnGifBtn', (event, args) => {
-  const resultGifs = document.querySelector(".resultGif")
+function addImg(args){
+  for(let i = args.length - 8; i<args.length;i++){
+    const gifWrapper = document.createElement("DIV")
+    const resGif = document.createElement("IMG")
+    const source = args[i].images.original.url
 
+    gifWrapper.setAttribute("class","gifWrapper")
+    resGif.setAttribute("src",source)
+    gifWrapper.appendChild(resGif)
+    resultGifs.appendChild(gifWrapper)
+  }
+}
+
+ipcRenderer.on('returnGifBtn', (event, args) => {
   while (resultGifs.hasChildNodes()) {
     resultGifs.removeChild(resultGifs.childNodes[0])
   }
   
-  for(let i = args.length - 8; i<args.length;i++){
-    const gifWrapper = document.createElement("DIV")
-    const resGif = document.createElement("IMG")
-    const source = args[i].images.original.url
-
-    resGif.setAttribute("src",source)
-    gifWrapper.appendChild(resGif)
-    resultGifs.appendChild(gifWrapper)
-  }
+  addImg(args)
 });
 
 ipcRenderer.on('returnGifScroll', (event, args) => {
-  const resultGifs = document.querySelector(".resultGif")
-  
-  for(let i = args.length - 8; i<args.length;i++){
-    const gifWrapper = document.createElement("DIV")
-    const resGif = document.createElement("IMG")
-    const source = args[i].images.original.url
-
-    resGif.setAttribute("src",source)
-    gifWrapper.appendChild(resGif)
-    resultGifs.appendChild(gifWrapper)
-  }
+  addImg(args)
 });
 
 window.addEventListener("scroll", (e) => {
