@@ -19,18 +19,23 @@
 .navigator button.active{
   background-color: #ccc;
 }
-/* .searchPage{
-  visibility: "hidden";
+.searchPage{
+  display: none;
 }
 .searchPage.active{
-  visibility: "visible";
+  display: block;
 }
 .favoritesPage{
-  visibility: "hidden";
+  display: none;
 }
 .favoritesPage.active{
-  visibility: "visible";
-} */
+  display: block;
+}
+.favorited{
+  border: blueviolet;
+  border-width: thick;
+  border-style: groove;
+}
 .resultGif{
   width: 100%;
   padding-left: 20px;
