@@ -6,6 +6,7 @@ const favTab = document.querySelector("#favorites")
 const searchTab = document.querySelector("#search")
 const favPage = document.querySelector(".favoritesPage")
 const searchPage = document.querySelector(".searchPage")
+document.querySelector("form").addEventListener("submit", (e) => e.preventDefault())
 
 let searchAmount = 10
 let favoriteCount = 0 
@@ -13,7 +14,11 @@ let favoriteCount = 0
 searchTab.addEventListener("click",switchToSearchPage)
 favTab.addEventListener("click",switchToFavoritePage)
 
-switchToSearchPage()
+// inputField.addEventListener("keyup",() => {
+//   searchAmount = 8
+//   const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
+//   ipcRenderer.send('getGifWithBtn',input)  
+// })
 
 function switchToSearchPage(){
   favPage.className = favPage.className.replace(" active","")
@@ -39,6 +44,19 @@ searchBtn.addEventListener('click', () => {
   searchAmount = 8
   const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
   ipcRenderer.send('getGifWithBtn',input)  
+})
+
+ipcRenderer.on('returnGifBtn', (event, args) => {
+  while (resultGifs.hasChildNodes()) {
+    resultGifs.removeChild(resultGifs.childNodes[0])
+  }
+  
+  addImgSearchPage(args)
+  addImgFavPage()
+});
+
+ipcRenderer.on('returnGifScroll', (event, args) => {
+  addImgSearchPage(args)
 });
 
 function addImgSearchPage(args){
@@ -57,14 +75,15 @@ function addImgSearchPage(args){
     gif.addEventListener("click",handleFavoritedSearchPage)
   }
 }
+
 function handleFavoritedSearchPage(){
   const id = this.id
   const url = this.src
-  if(localStorage.getItem(id)) removeFavourite(id,this)
+  if(localStorage.getItem(id)) removeFavouriteInSearchPage(id,this)
   else addFavourite(id,url,this)
 }
 
-function removeFavourite(id,tag){
+function removeFavouriteInSearchPage(id,tag){
   document.querySelector(`#favPage_${id}`).parentNode.remove()
   localStorage.removeItem(id)
   tag.removeAttribute("class")
@@ -81,23 +100,10 @@ function addFavourite(id,url,tag){
   gif.setAttribute("src",url)
   gif.setAttribute("id",`favPage_${id}`)
   gifWrapper.appendChild(gif)
-  favPage.appendChild(gifWrapper)
+  document.querySelectorAll(".resultGif")[1].appendChild(gifWrapper)
 
-  gif.addEventListener("click",removeFavoritedFavPage)
+  gif.addEventListener("click",removeFavoritedInFavPage)
 }
-
-ipcRenderer.on('returnGifBtn', (event, args) => {
-  while (resultGifs.hasChildNodes()) {
-    resultGifs.removeChild(resultGifs.childNodes[0])
-  }
-  
-  addImgSearchPage(args)
-  addImgFavPage()
-});
-
-ipcRenderer.on('returnGifScroll', (event, args) => {
-  addImgSearchPage(args)
-});
 
 const FETCH_CD_MS = 1000
 let lastFetched = 0
@@ -105,9 +111,10 @@ let lastFetched = 0
 window.addEventListener("scroll", (e) => {
   if(document.scrollingElement.scrollTop + window.innerHeight >= document.body.clientHeight) {
     if(Date.now() - lastFetched < FETCH_CD_MS)  return
-    lastFetched = Date.now()
 
+    lastFetched = Date.now()
     searchAmount += 8
+
     const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
     ipcRenderer.send('getGifWithScroll',input)  
   }
@@ -123,20 +130,26 @@ function addImgFavPage(){
     gif.setAttribute("src",source)
     gif.setAttribute("id",`favPage_${imageKey}`)
     gifWrapper.appendChild(gif)
-    favPage.appendChild(gifWrapper)
+    document.querySelectorAll(".resultGif")[1].appendChild(gifWrapper)
 
     if(document.querySelector(`#${imageKey}`)){
       document.querySelector(`#${imageKey}`).setAttribute("class","favorited")
     }
     
-    gif.addEventListener("click",removeFavoritedFavPage)
+    gif.addEventListener("click",removeFavoritedInFavPage)
   }
 }
 
-function removeFavoritedFavPage(){
+function removeFavoritedInFavPage(){
   const id = this.id
   const gifId = id.substring(8)
+
   document.querySelector(`#${gifId}`).removeAttribute("class")
   localStorage.removeItem(gifId)
   this.parentNode.remove()
 }
+
+//load search page first when we start the app
+switchToSearchPage()
+//preload every favorite images
+addImgFavPage()
