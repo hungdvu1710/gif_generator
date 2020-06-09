@@ -65,7 +65,7 @@ function handleFavoritedSearchPage(){
 }
 
 function removeFavourite(id,tag){
-  document.querySelector(`#favPage_${id}`).remove()
+  document.querySelector(`#favPage_${id}`).parentNode.remove()
   localStorage.removeItem(id)
   tag.removeAttribute("class")
 }
@@ -84,7 +84,6 @@ function addFavourite(id,url,tag){
   favPage.appendChild(gifWrapper)
 
   gif.addEventListener("click",removeFavoritedFavPage)
-
 }
 
 ipcRenderer.on('returnGifBtn', (event, args) => {
@@ -93,6 +92,7 @@ ipcRenderer.on('returnGifBtn', (event, args) => {
   }
   
   addImgSearchPage(args)
+  addImgFavPage()
 });
 
 ipcRenderer.on('returnGifScroll', (event, args) => {
@@ -125,9 +125,14 @@ function addImgFavPage(){
     gifWrapper.appendChild(gif)
     favPage.appendChild(gifWrapper)
 
+    if(document.querySelector(`#${imageKey}`)){
+      document.querySelector(`#${imageKey}`).setAttribute("class","favorited")
+    }
+    
     gif.addEventListener("click",removeFavoritedFavPage)
   }
 }
+
 function removeFavoritedFavPage(){
   const id = this.id
   const gifId = id.substring(8)
