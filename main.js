@@ -30,12 +30,10 @@ function createWindow () {
 }
 
 ipcMain.on('getGifWithBtn', (event, args) => {
-  console.log(args)
   getGifWithBtn(event,args).catch(console.log)
 })
 
 ipcMain.on('getGifWithScroll', (event, args) => {
-  console.log(args)
   getGifWithScroll(event,args).catch(console.log)
 })
 

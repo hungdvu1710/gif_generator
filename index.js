@@ -1,8 +1,41 @@
 const ipcRenderer = require('electron').ipcRenderer
 const inputField = document.querySelector("#text-input")
 const searchBtn = document.querySelector('#searchBtn')
-let searchAmount = 8
 const resultGifs = document.querySelector(".resultGif")
+const favTab = document.querySelector("#favorites")
+const searchTab = document.querySelector("#search")
+const favPage = document.querySelector(".favoritesPage")
+const searchPage = document.querySelector(".searchPage")
+let searchAmount = 8
+
+searchTab.addEventListener("click",switchToSearchPage)
+favTab.addEventListener("click",switchToFavoritePage)
+
+switchToSearchPage()
+
+function switchToSearchPage(){
+  searchPage.style.visibility = "visible"
+  favPage.style.visibility = "hidden"
+  // favPage.className = favPage.className.replace(" active","")
+  // searchPage.className = searchPage.className.replace(" active","")
+  // searchPage.className += " active"
+
+  favTab.className = favTab.className.replace(" active","")
+  searchTab.className = searchTab.className.replace(" active","")
+  searchTab.className += " active"
+}
+
+function switchToFavoritePage(){
+  searchPage.style.visibility = "hidden"
+  favPage.style.visibility = "visible"
+  // favPage.className = favPage.className.replace(" active","")
+  // searchPage.className = searchPage.className.replace(" active","")
+  // favPage.className += " active"
+
+  favTab.className = favTab.className.replace(" active","")
+  searchTab.className = searchTab.className.replace(" active","")
+  favTab.className += " active"
+}
 
 searchBtn.addEventListener('click', () => {
   searchAmount = 8
@@ -37,10 +70,6 @@ ipcRenderer.on('returnGifScroll', (event, args) => {
 
 window.addEventListener("scroll", (e) => {
   if(document.scrollingElement.scrollTop + window.innerHeight >= document.body.clientHeight) {
-    // let new_div = document.createElement("DIV")
-    // new_div.innerText = "here"
-    // console.log(document.scrollingElement.scrollTop)
-    // document.querySelector(".resultGif").appendChild(new_div)
     searchAmount += 8
     const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
     ipcRenderer.send('getGifWithScroll',input)  

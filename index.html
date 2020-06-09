@@ -7,13 +7,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="row">
-    <textarea id="text-input" class="text-input"></textarea>
+  <div class="navigator">
+    <button id="search">Search</button>
+    <button id="favorites">Favorite</button>
+  </div>
+
+  <div class="searchPage">
+    <form class="input">
+      <textarea id="text-input" class="text-input"></textarea>
+    </form>
+    
+    <input type="button" id="searchBtn" value="Search">
+  
+    <div class="resultGif"></div>
+  </div>
+
+  <div class="favoritesPage">
+    <h3>Here</h3>
   </div>
   
-  <input type="button" id="searchBtn" value="Search">
-
-  <div class="resultGif"></div>
   <script src="index.js"></script>
 </body>
 </html>

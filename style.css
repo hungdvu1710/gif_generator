@@ -1,3 +1,36 @@
+.navigator{
+  width: fit-content;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+.navigator button{
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+.navigator button:hover{
+  background-color: rgb(145, 85, 85);
+}
+.navigator button.active{
+  background-color: #ccc;
+}
+/* .searchPage{
+  visibility: "hidden";
+}
+.searchPage.active{
+  visibility: "visible";
+}
+.favoritesPage{
+  visibility: "hidden";
+}
+.favoritesPage.active{
+  visibility: "visible";
+} */
 .resultGif{
   width: 100%;
   padding-left: 20px;
@@ -8,25 +41,19 @@
   flex-wrap: wrap;
 }
 .gifWrapper{
-  width: 32%;
-  height: 200px;
-  display: flex;
+  width: 305px;
+  height: 300px;
+  padding-right: 15px;
   margin: 1.6rem 0px;
   grid-template-columns: repeat(1, 1fr);
   gap: 20px;
 }
 img{
-  height: 200px;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
   box-shadow: rgba(33, 33, 33, 0.2) 0px 0px 11px;
 }
-@media screen and (max-width: 1215px) {
-  .gifWrapper {
-    width: 50%; /* The width is 100%, when the viewport is 800px or smaller */
-  }
-}
-@media screen and (max-width: 810px) {
-  .gifWrapper {
-    width: 100%; /* The width is 100%, when the viewport is 800px or smaller */
-  }
+img:hover{
+  transform: scale(1.05);
 }
