@@ -10,13 +10,23 @@ const favTab = document.querySelector("#favorites")
 const searchTab = document.querySelector("#search")
 const favPage = document.querySelector(".favoritesPage")
 const searchPage = document.querySelector(".searchPage")
+const exportBtn = document.querySelector("#export")
+
 document.querySelector("form").addEventListener("submit", (e) => e.preventDefault())
 
 let searchAmount = 10
 
+exportBtn.addEventListener("click",handleExport)
 searchTab.addEventListener("click",switchToSearchPage)
 favTab.addEventListener("click",switchToFavoritePage)
 inputField.addEventListener('focus',clearClipboard)
+
+function handleExport(){
+  if(!localStorage.length){
+    ipcRenderer.send('no-item-to-download')
+  }
+  ipcRenderer.send('export')
+}
 
 function clearClipboard(){
   ipcRenderer.send('clear-clipboard')

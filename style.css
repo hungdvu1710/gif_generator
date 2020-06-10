@@ -1,6 +1,9 @@
 html, body{
   background: linear-gradient(to right, white, #487eb0);
 }
+#export:active{
+  transform: translateY(4px);
+}
 .text-input{
   width: 100%;
   border: 0;

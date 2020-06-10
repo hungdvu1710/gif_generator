@@ -60,6 +60,22 @@ ipcMain.on('invalid-input', ()=>{
   }).catch(console.log)
 })
 
+ipcMain.on('no-item-to-download',()=>{
+  dialog.showMessageBox(win,{
+    type: "error",
+    message: "No favorite items to download"
+  }).catch(console.log)
+})
+
+ipcMain.on('export',()=>{
+  dialog.showOpenDialog(win,{
+    properties: ['openDirectory']
+  }).then((data)=>{
+    console.log(data.filePaths)
+    console.log(data.canceled)
+  })
+})
+
 download().then(console.log).catch(console.log)
 app.whenReady().then(createWindow)
 
@@ -74,9 +90,9 @@ function forwardClipboardContent(){
 }
 
 async function download(){
-  const url = 'https://p.bigstockphoto.com/eIdTXLbqQilMs9xbjvcs_bigstock-Aerial-View-Of-Sandy-Beach-Wit-256330393.jpg'
-  // const url = 'https://media2.giphy.com/media/SpMPCMfa1L87m/giphy.gif?cid=34dce8657419f88bfdb4871287e8cd8049cc0c7c3d6f840f&rid=giphy.gif'
-  const directory = path.resolve(__dirname,'downloads','test.jpg')
+  // const url = 'https://p.bigstockphoto.com/eIdTXLbqQilMs9xbjvcs_bigstock-Aerial-View-Of-Sandy-Beach-Wit-256330393.jpg'
+  const url = 'https://media2.giphy.com/media/SpMPCMfa1L87m/giphy.gif?cid=34dce8657419f88bfdb4871287e8cd8049cc0c7c3d6f840f&rid=giphy.gif'
+  const directory = path.resolve(__dirname,'downloads','test.gif')
 
   const response = await axios({
     method: 'GET',
