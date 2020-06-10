@@ -1,7 +1,11 @@
 const ipcRenderer = require('electron').ipcRenderer
+const fs = require('fs')
+const path = require('path')
+const axios = require('axios')
+
 const inputField = document.querySelector("#text-input")
 const searchBtn = document.querySelector('#searchBtn')
-const resultGifs = document.querySelector(".resultGif")
+const resultGifSearchPage = document.querySelector(".resultGif")
 const favTab = document.querySelector("#favorites")
 const searchTab = document.querySelector("#search")
 const favPage = document.querySelector(".favoritesPage")
@@ -9,16 +13,9 @@ const searchPage = document.querySelector(".searchPage")
 document.querySelector("form").addEventListener("submit", (e) => e.preventDefault())
 
 let searchAmount = 10
-let favoriteCount = 0 
 
 searchTab.addEventListener("click",switchToSearchPage)
 favTab.addEventListener("click",switchToFavoritePage)
-
-// inputField.addEventListener("keyup",() => {
-//   searchAmount = 8
-//   const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
-//   ipcRenderer.send('getGifWithBtn',input)  
-// })
 
 function switchToSearchPage(){
   favPage.className = favPage.className.replace(" active","")
@@ -47,8 +44,8 @@ searchBtn.addEventListener('click', () => {
 })
 
 ipcRenderer.on('returnGifBtn', (event, args) => {
-  while (resultGifs.hasChildNodes()) {
-    resultGifs.removeChild(resultGifs.childNodes[0])
+  while (resultGifSearchPage.hasChildNodes()) {
+    resultGifSearchPage.removeChild(resultGifSearchPage.childNodes[0])
   }
   
   addImgSearchPage(args)
@@ -70,7 +67,7 @@ function addImgSearchPage(args){
     gif.setAttribute("src",source)
     gif.setAttribute("id",id)
     gifWrapper.appendChild(gif)
-    resultGifs.appendChild(gifWrapper)
+    resultGifSearchPage.appendChild(gifWrapper)
 
     gif.addEventListener("click",handleFavoritedSearchPage)
   }
@@ -122,6 +119,11 @@ window.addEventListener("scroll", (e) => {
 
 function addImgFavPage(){
   for(let imageKey of Object.keys(localStorage)){
+    if(document.querySelector(`#${imageKey}`)){
+      document.querySelector(`#${imageKey}`).setAttribute("class","favorited")
+    }
+    if(document.querySelectorAll(".resultGif")[1].contains(document.querySelector(`#wrapper_${imageKey}`))) continue
+
     const gifWrapper = document.createElement("DIV")
     const gif = document.createElement("IMG")
     const source = localStorage.getItem(imageKey)
@@ -130,11 +132,8 @@ function addImgFavPage(){
     gif.setAttribute("src",source)
     gif.setAttribute("id",`favPage_${imageKey}`)
     gifWrapper.appendChild(gif)
+    gifWrapper.setAttribute("id",`wrapper_${imageKey}`)
     document.querySelectorAll(".resultGif")[1].appendChild(gifWrapper)
-
-    if(document.querySelector(`#${imageKey}`)){
-      document.querySelector(`#${imageKey}`).setAttribute("class","favorited")
-    }
     
     gif.addEventListener("click",removeFavoritedInFavPage)
   }
@@ -144,7 +143,9 @@ function removeFavoritedInFavPage(){
   const id = this.id
   const gifId = id.substring(8)
 
-  document.querySelector(`#${gifId}`).removeAttribute("class")
+  if(document.querySelector(`#${gifId}`))
+    document.querySelector(`#${gifId}`).removeAttribute("class")
+
   localStorage.removeItem(gifId)
   this.parentNode.remove()
 }

@@ -14,7 +14,9 @@
     "electron": "^6.0.2"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "electron-fetch": "^1.4.0",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "path": "^0.12.7"
   }
 }
