@@ -1,10 +1,18 @@
-.navigator{
-  width: fit-content;
-  overflow: hidden;
-  border: 1px solid #ccc;
-  background-color: #f1f1f1;
+html, body{
+  background: linear-gradient(to right, white, #487eb0);
+}
+.text-input{
+  width: 100%;
+  border: 0;
+  border-bottom: 2px solid gray;
+  outline: 0;
+  font-size: 1.3rem;
+  color: #2f3640;
+  padding: 7px 0;
+  background: transparent;
 }
 .navigator button{
+  font-family: 'Balsamiq Sans', cursive;
   background-color: inherit;
   float: left;
   border: none;

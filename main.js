@@ -1,4 +1,9 @@
-const { app, BrowserWindow,ipcMain } = require('electron')
+const { 
+  app, 
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  clipboard } = require('electron')
 const fetch = require('electron-fetch').default
 const fs = require('fs')
 const path = require('path')
@@ -18,7 +23,7 @@ async function getGifWithScroll(event,args){
 
 function createWindow () {
   // Create the browser window.
-  let win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -40,8 +45,33 @@ ipcMain.on('getGifWithScroll', (event, args) => {
   getGifWithScroll(event,args).catch(console.log)
 })
 
+ipcMain.once('window-ready', () => {
+  forwardClipboardContent()
+})
+
+ipcMain.on('clear-clipboard', ()=>{
+  clipboard.clear()
+})
+
+ipcMain.on('invalid-input', ()=>{
+  dialog.showMessageBox(win,{
+    type: "error",
+    message: "Invalid Input"
+  }).catch(console.log)
+})
+
 download().then(console.log).catch(console.log)
 app.whenReady().then(createWindow)
+
+function forwardClipboardContent(){
+  if (win.isDestroyed()) return
+
+  win.webContents.send('clipboard-updated', {
+    text: clipboard.readText(),
+  })
+
+  setTimeout(forwardClipboardContent, 100)
+}
 
 async function download(){
   const url = 'https://p.bigstockphoto.com/eIdTXLbqQilMs9xbjvcs_bigstock-Aerial-View-Of-Sandy-Beach-Wit-256330393.jpg'
