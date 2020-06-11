@@ -25,7 +25,7 @@ function handleExport(){
   if(!localStorage.length){
     ipcRenderer.send('no-item-to-download')
   }
-  ipcRenderer.send('export')
+  ipcRenderer.send('export',localStorage)
 }
 
 function clearClipboard(){
