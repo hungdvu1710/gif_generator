@@ -67,6 +67,8 @@ ipcRenderer.on('returnGifBtn', (event, args) => {
   addImgSearchPage(args)
 });
 
+ipcRenderer.on('export-request',handleExport)
+
 ipcRenderer.on('returnGifScroll', (event, args) => {
   addImgSearchPage(args)
 });

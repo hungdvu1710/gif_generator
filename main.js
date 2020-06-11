@@ -3,6 +3,8 @@ const {
   BrowserWindow,
   ipcMain,
   dialog,
+  Menu,
+  Tray,
   clipboard } = require('electron')
 const fetch = require('electron-fetch').default
 const fs = require('fs')
@@ -84,7 +86,23 @@ ipcMain.on('export',(event,args)=>{
   })
 })
 
-app.whenReady().then(createWindow)
+app.on('ready', () => {
+  createWindow ()
+  const tray = new Tray(".\\giphy-world-ar-gif-stickers-2018-02-05.png")
+  tray.setToolTip('Gif Generator')
+  tray.setContextMenu(Menu.buildFromTemplate([
+    {
+      label: 'Exit', type: 'normal', click() {
+        app.quit()
+      }
+    },
+    {
+      label: 'Export Favorites', type: 'normal', click() {
+        win.webContents.send('export-request')
+      }
+    }
+  ]))
+})
 
 function forwardClipboardContent(){
   if (win.isDestroyed()) return
