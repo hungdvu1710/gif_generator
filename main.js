@@ -72,7 +72,9 @@ ipcMain.on('export',(event,args)=>{
   dialog.showOpenDialog(win,{
     properties: ['openDirectory']
   }).then((data)=>{
-    download(data.filePaths[0],args).then(console.log("Download Done")).catch(console.log)
+    downloadAllFiles(data.filePaths[0],args)
+      .then(() => console.log("Download Done"))
+      .catch(console.log)
     console.log(data.canceled)
   })
 })
@@ -89,42 +91,32 @@ function forwardClipboardContent(){
   setTimeout(forwardClipboardContent, 100)
 }
 
-async function download(folder,storage){
-  console.log(storage)
-  const downloadUnit = await Promise.all(Object.keys(storage).map((imageKey)=>{
-    const url = storage[imageKey]
-    const directory = path.resolve(folder,`${imageKey}.gif`)
-    return axios({
+
+const downloadOne = ({ url, filePath }) => {
+  return new Promise(async (resolve, reject) => {
+    const response = await axios({
+      responseType: 'stream',
       method: 'GET',
       url: url,
-      responseType: 'stream'
     })
-  })).then((response) => {
-    response.data.pipe(fs.createWriteStream(directory))
-  }).catch((e) => {console.log(e)})
-  
-  // for(let imageKey of Object.keys(storage)){
-  //   const url = storage[imageKey]
-  // }
-  // // const url = 'https://p.bigstockphoto.com/eIdTXLbqQilMs9xbjvcs_bigstock-Aerial-View-Of-Sandy-Beach-Wit-256330393.jpg'
-  // const url = 'https://media2.giphy.com/media/SpMPCMfa1L87m/giphy.gif?cid=34dce8657419f88bfdb4871287e8cd8049cc0c7c3d6f840f&rid=giphy.gif'
-  // const directory = path.resolve(folder,'test.gif')
 
-  // const response = await axios({
-  //   method: 'GET',
-  //   url: url,
-  //   responseType: 'stream'
-  // })
-
-  // response.data.pipe(fs.createWriteStream(directory))
-
-  return new Promise((resolve,reject)=>{
-    downloadUnit.data.on('end', ()=>{
-      resolve()
-    })
-    downloadUnit.data.on('error', (e)=>{
-      reject(e)
-    })
+    const ws = fs.createWriteStream(filePath)
+    ws.once('close', resolve)
+    ws.once('error', reject)
+    response.data.pipe(ws)
   })
 }
 
+function downloadAllFiles(folder, storage) {
+  const images = Object.keys(storage).map(imageKey => {
+    const filePath = path.resolve(folder, `${imageKey}.gif`)
+
+    return {
+      filePath,
+      url: storage[imageKey],
+    }
+  })
+
+  return Promise.all(images.map(image => downloadOne(image)))
+    .catch((e) => {console.info(e)})
+}
