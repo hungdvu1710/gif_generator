@@ -8,6 +8,7 @@ const fetch = require('electron-fetch').default
 const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
+const pLimit = require('p-limit')
 
 async function getGifWithBtn(event,args){
   let xhr = await fetch(`http://api.giphy.com/v1/gifs/search?q=${args[0]}&api_key=jjkPZL63udWj11nnwd35vSYQk8YbV25g&limit=${args[1]}`).catch(console.log)
@@ -68,14 +69,18 @@ ipcMain.on('no-item-to-download',()=>{
 })
 
 ipcMain.on('export',(event,args)=>{
-  let folder
   dialog.showOpenDialog(win,{
     properties: ['openDirectory']
   }).then((data)=>{
+    if(!data.filePaths[0]) return
     downloadAllFiles(data.filePaths[0],args)
-      .then(() => console.log("Download Done"))
+      .then(() => {
+        dialog.showMessageBox(win,{
+          title: "Message",
+          message: "Download Done"
+        }).catch(console.log)
+      })
       .catch(console.log)
-    console.log(data.canceled)
   })
 })
 
@@ -93,6 +98,7 @@ function forwardClipboardContent(){
 
 
 const downloadOne = ({ url, filePath }) => {
+  
   return new Promise(async (resolve, reject) => {
     const response = await axios({
       responseType: 'stream',
@@ -108,6 +114,8 @@ const downloadOne = ({ url, filePath }) => {
 }
 
 function downloadAllFiles(folder, storage) {
+  // const limit = pLimit(7)
+  if(!folder) return
   const images = Object.keys(storage).map(imageKey => {
     const filePath = path.resolve(folder, `${imageKey}.gif`)
 
