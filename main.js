@@ -67,16 +67,16 @@ ipcMain.on('no-item-to-download',()=>{
   }).catch(console.log)
 })
 
-ipcMain.on('export',()=>{
+ipcMain.on('export',(event,args)=>{
+  let folder
   dialog.showOpenDialog(win,{
     properties: ['openDirectory']
   }).then((data)=>{
-    console.log(data.filePaths)
+    download(data.filePaths[0],args).then(console.log("Download Done")).catch(console.log)
     console.log(data.canceled)
   })
 })
 
-download().then(console.log).catch(console.log)
 app.whenReady().then(createWindow)
 
 function forwardClipboardContent(){
@@ -89,24 +89,40 @@ function forwardClipboardContent(){
   setTimeout(forwardClipboardContent, 100)
 }
 
-async function download(){
-  // const url = 'https://p.bigstockphoto.com/eIdTXLbqQilMs9xbjvcs_bigstock-Aerial-View-Of-Sandy-Beach-Wit-256330393.jpg'
-  const url = 'https://media2.giphy.com/media/SpMPCMfa1L87m/giphy.gif?cid=34dce8657419f88bfdb4871287e8cd8049cc0c7c3d6f840f&rid=giphy.gif'
-  const directory = path.resolve(__dirname,'downloads','test.gif')
+async function download(folder,storage){
+  console.log(storage)
+  const downloadUnit = await Promise.all(Object.keys(storage).map((imageKey)=>{
+    const url = storage[imageKey]
+    const directory = path.resolve(folder,`${imageKey}.gif`)
+    return axios({
+      method: 'GET',
+      url: url,
+      responseType: 'stream'
+    })
+  })).then((response) => {
+    response.data.pipe(fs.createWriteStream(directory))
+  }).catch((e) => {console.log(e)})
+  
+  // for(let imageKey of Object.keys(storage)){
+  //   const url = storage[imageKey]
+  // }
+  // // const url = 'https://p.bigstockphoto.com/eIdTXLbqQilMs9xbjvcs_bigstock-Aerial-View-Of-Sandy-Beach-Wit-256330393.jpg'
+  // const url = 'https://media2.giphy.com/media/SpMPCMfa1L87m/giphy.gif?cid=34dce8657419f88bfdb4871287e8cd8049cc0c7c3d6f840f&rid=giphy.gif'
+  // const directory = path.resolve(folder,'test.gif')
 
-  const response = await axios({
-    method: 'GET',
-    url: url,
-    responseType: 'stream'
-  })
+  // const response = await axios({
+  //   method: 'GET',
+  //   url: url,
+  //   responseType: 'stream'
+  // })
 
-  response.data.pipe(fs.createWriteStream(directory))
+  // response.data.pipe(fs.createWriteStream(directory))
 
   return new Promise((resolve,reject)=>{
-    response.data.on('end', ()=>{
+    downloadUnit.data.on('end', ()=>{
       resolve()
     })
-    response.data.on('error', (e)=>{
+    downloadUnit.data.on('error', (e)=>{
       reject(e)
     })
   })
