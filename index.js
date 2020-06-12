@@ -116,6 +116,7 @@ function addOneImgSearchPage(img){
   const source = img.images.original.url
   const {id} = img
 
+  gifWrapper.setAttribute("style","background-image: url(loading.gif)") 
   gifWrapper.setAttribute("class","gifWrapper")
   gif.setAttribute("src",source)
   gif.setAttribute("id",id)

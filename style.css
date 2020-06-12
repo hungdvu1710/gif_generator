@@ -59,8 +59,7 @@ html, body{
 .gifWrapper{
   width: 305px;
   height: 300px;
-  padding-right: 15px;
-  margin: 1.6rem 0px;
+  margin: 20px;
   grid-template-columns: repeat(1, 1fr);
   gap: 20px;
 }
