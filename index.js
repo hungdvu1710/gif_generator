@@ -14,12 +14,24 @@ const exportBtn = document.querySelector("#export")
 
 document.querySelector("form").addEventListener("submit", (e) => e.preventDefault())
 
-let searchAmount = 10
+let searchAmount = 8
 
 exportBtn.addEventListener("click",handleExport)
 searchTab.addEventListener("click",switchToSearchPage)
 favTab.addEventListener("click",switchToFavoritePage)
 inputField.addEventListener('focus',clearClipboard)
+inputField.addEventListener('change',() => {
+  searchAmount = 8
+  const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
+  ipcRenderer.send('getGifWithBtn',input) 
+  window.addEventListener("scroll", handleScroll)
+})
+searchBtn.addEventListener('click', ()=>{
+  searchAmount = 8
+  const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
+  ipcRenderer.send('getGifWithBtn',input) 
+  window.addEventListener("scroll", handleScroll)
+})
 
 function handleExport(){
   if(!localStorage.length){
@@ -54,12 +66,6 @@ function switchToFavoritePage(){
   favTab.className += " active"
 }
 
-searchBtn.addEventListener('click', () => {
-  searchAmount = 8
-  const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
-  ipcRenderer.send('getGifWithBtn',input)  
-})
-
 ipcRenderer.on('returnGifBtn', (event, args) => {
   while (resultGifSearchPage.hasChildNodes()) {
     resultGifSearchPage.removeChild(resultGifSearchPage.childNodes[0])
@@ -82,6 +88,7 @@ ipcRenderer.on('clipboard-updated', (_, clipboard) => {
 })
 
 function addImgSearchPage(args){
+  console.log(args)
   if(!args){
     ipcRenderer.send('invalid-input')
     return
@@ -90,24 +97,36 @@ function addImgSearchPage(args){
     ipcRenderer.send('invalid-input')
     return
   }
-  for(let i = args.length - 8; i<args.length;i++){
-    const gifWrapper = document.createElement("DIV")
-    const gif = document.createElement("IMG")
-    const source = args[i].images.original.url
-    const {id} = args[i]
-
-    gifWrapper.setAttribute("class","gifWrapper")
-    gif.setAttribute("src",source)
-    gif.setAttribute("id",id)
-    gifWrapper.appendChild(gif)
-    resultGifSearchPage.appendChild(gifWrapper)
-
-    if(localStorage.getItem(id)){
-      gif.setAttribute("class","favorited")
+  if(args.length < 8 || args.length%8 != 0){
+    for(let i = args.length - args.length%8; i<args.length;i++){
+      addOneImgSearchPage(args[i])
     }
-
-    gif.addEventListener("click",handleFavoritedSearchPage)
+    ipcRenderer.send('out-of-results')
+    window.removeEventListener('scroll', handleScroll)
+    return
   }
+  for(let i = args.length - 8; i<args.length;i++){
+    addOneImgSearchPage(args[i])
+  }
+}
+
+function addOneImgSearchPage(img){
+  const gifWrapper = document.createElement("DIV")
+  const gif = document.createElement("IMG")
+  const source = img.images.original.url
+  const {id} = img
+
+  gifWrapper.setAttribute("class","gifWrapper")
+  gif.setAttribute("src",source)
+  gif.setAttribute("id",id)
+  gifWrapper.appendChild(gif)
+  resultGifSearchPage.appendChild(gifWrapper)
+
+  if(localStorage.getItem(id)){
+    gif.setAttribute("class","favorited")
+  }
+
+  gif.addEventListener("click",handleFavoritedSearchPage)
 }
 
 function handleFavoritedSearchPage(){
@@ -142,8 +161,9 @@ function addFavourite(id,url,tag){
 const FETCH_CD_MS = 1000
 let lastFetched = 0
 
-window.addEventListener("scroll", (e) => {
+function handleScroll(){
   if(favPage.className === "favoritesPage active") return
+
   if(document.scrollingElement.scrollTop + window.innerHeight >= document.body.clientHeight) {
     if(Date.now() - lastFetched < FETCH_CD_MS)  return
 
@@ -153,7 +173,7 @@ window.addEventListener("scroll", (e) => {
     const input = [inputField.value.replace(/\s+/g, " ").split(" ").join("+"),searchAmount]
     ipcRenderer.send('getGifWithScroll',input)  
   }
-})
+}
 
 function addImgFavPage(){
   for(let imageKey of Object.keys(localStorage)){

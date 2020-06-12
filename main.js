@@ -63,6 +63,13 @@ ipcMain.on('invalid-input', ()=>{
   }).catch(console.log)
 })
 
+ipcMain.on('out-of-results', ()=>{
+  dialog.showMessageBox(win,{
+    type: "error",
+    message: "Out of results"
+  }).catch(console.log)
+})
+
 ipcMain.on('no-item-to-download',()=>{
   dialog.showMessageBox(win,{
     type: "error",
