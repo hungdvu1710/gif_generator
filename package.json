@@ -16,7 +16,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "electron-fetch": "^1.4.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "p-limit": "^3.0.1",
     "path": "^0.12.7"
   }
